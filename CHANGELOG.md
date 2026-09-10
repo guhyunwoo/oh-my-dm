@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and releases follow [Semantic Versioning](https://semver.org/).
 
+## [0.7.2](https://github.com/stacking-money-forever/oh-my-dm/compare/v0.7.1...v0.7.2) (2026-09-10)
+
+
+### Bug Fixes
+
+* support localized KakaoTalk app paths (fixes [#24](https://github.com/stacking-money-forever/oh-my-dm/issues/24)) ([90622b9](https://github.com/stacking-money-forever/oh-my-dm/commit/90622b97c26379bd9403b91cac84fa6dfee3b537))
+
 ## [0.7.1](https://github.com/stacking-money-forever/oh-my-dm/compare/v0.7.0...v0.7.1) (2026-09-04)
 
 
