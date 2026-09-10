@@ -101,8 +101,17 @@ export class UnifiedChatConnector extends EventEmitter implements ChatConnector 
       ? this.snapshots.get(this.activeProviderId)
       : undefined;
     const connected = connectors.some((item) => item.state === "connected");
+    const failed = connectors.some(
+      (item) => item.state === "error" || item.state === "disconnected",
+    );
     this.snapshot = {
-      state: connected ? "connected" : connectors.some((item) => item.state === "starting") ? "starting" : "error",
+      state: connected
+        ? "connected"
+        : failed
+          ? "error"
+          : connectors.some((item) => item.state === "starting")
+            ? "starting"
+            : "error",
       conversations,
       activeConversationId:
         this.activeProviderId && activeSnapshot?.activeConversationId

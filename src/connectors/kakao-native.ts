@@ -1,12 +1,10 @@
-import { execFile } from "node:child_process";
 import { EventEmitter } from "node:events";
-import { promisify } from "node:util";
 
 import type { ChatConnector, ChatMessage, ChatSnapshot, Conversation } from "../domain.js";
 import { mergeMessageWindows, normalizeMessage, type RawMessage } from "./instagram-dom.js";
+import { openKakaoTalkApplication } from "./kakao-app.js";
 import { KakaoNativeBridge } from "./kakao-native-bridge.js";
 
-const execFileAsync = promisify(execFile);
 const CONVERSATION_REFRESH_INTERVAL_MS = 10_000;
 
 interface NativeConversation {
@@ -62,7 +60,7 @@ export class KakaoNativeConnector extends EventEmitter implements ChatConnector 
       return;
     }
     try {
-      await execFileAsync("open", ["-g", "/Applications/KakaoTalk.app"]);
+      await openKakaoTalkApplication();
       await new Promise((resolve) => setTimeout(resolve, 500));
       if (this.stopped) return;
       // Keep slow inbox/message traversal off the process that handles user

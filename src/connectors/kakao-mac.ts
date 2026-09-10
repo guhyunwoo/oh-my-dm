@@ -5,6 +5,7 @@ import { promisify } from "node:util";
 
 import type { ChatConnector, ChatMessage, ChatSnapshot, Conversation } from "../domain.js";
 import { mergeMessageWindows, normalizeMessage, type RawMessage } from "./instagram-dom.js";
+import { openKakaoTalkApplication } from "./kakao-app.js";
 
 const execFileAsync = promisify(execFile);
 const FIELD_SEPARATOR = "<<OHF>>";
@@ -45,7 +46,7 @@ export class KakaoMacConnector extends EventEmitter implements ChatConnector {
       return;
     }
     warmNativeReader();
-    await execFileAsync("open", ["-g", "/Applications/KakaoTalk.app"]);
+    await openKakaoTalkApplication();
     await new Promise((resolve) => setTimeout(resolve, 1_000));
     await ensureConversationListWindow();
     await this.refresh();

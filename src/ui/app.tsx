@@ -272,6 +272,14 @@ export function App({
   const conversationConnector = snapshot.connectors?.find(
     (item) => item.id === conversationProvider,
   );
+  const connectorFailure = conversationConnector?.state === "error" || conversationConnector?.state === "disconnected"
+    ? `${conversationConnector.label}: ${conversationConnector.detail ?? conversationConnector.state}`
+    : snapshot.state === "error"
+      ? snapshot.connectors
+        ?.filter((item) => item.state === "error" || item.state === "disconnected")
+        .map((item) => `${item.label}: ${item.detail ?? item.state}`)
+        .join(" · ")
+      : undefined;
   const terminalTooSmall = terminalSize.columns < 24 || terminalSize.rows < 10;
 
   useEffect(() => {
@@ -1140,6 +1148,8 @@ export function App({
               <Text color={theme.muted}>
                 {conversationProvider === "instagram" && conversationConnector?.state === "login-required"
                   ? copy.instagramLoginRequired
+                  : connectorFailure
+                    ? `error: ${connectorFailure}`
                   : conversationFilter === "unread"
                   ? copy.noUnread
                   : copy.waitingConversations}
