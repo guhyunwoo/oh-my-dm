@@ -1,6 +1,6 @@
 {
   "name": "oh-my-dm",
-  "version": "0.7.1",
+  "version": "0.7.2",
   "description": "DM without looking like you're DMing — a discreet Agent CLI-style TUI messenger.",
   "license": "Apache-2.0",
   "author": "Hyunwoo Gu <162293672+guhyunwoo@users.noreply.github.com>",
