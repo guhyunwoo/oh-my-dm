@@ -1,0 +1,41 @@
+{
+  "version": 1,
+  "project": "oh-my-dm",
+  "model": "jev-latest",
+  "mode": "advisory",
+  "maxFiles": 180,
+  "maxDiffChars": 16000,
+  "excludedPrefixes": [
+    ".git/",
+    ".gjc/",
+    ".omc/",
+    ".oh-my-chat/",
+    ".oh-my-dm/",
+    "dist/",
+    "node_modules/"
+  ],
+  "checks": [
+    {
+      "name": "tests",
+      "command": "npm",
+      "args": ["test"]
+    },
+    {
+      "name": "typecheck",
+      "command": "npm",
+      "args": ["run", "typecheck"]
+    },
+    {
+      "name": "build",
+      "command": "npm",
+      "args": ["run", "build"]
+    }
+  ],
+  "constraints": [
+    "Never persist or transmit real conversation content, cookies, browser profiles, session data, or accessibility dumps.",
+    "Connector changes must fail safely and include sanitized focused tests.",
+    "User-facing copy must be added in both Korean and English through the i18n layer.",
+    "Do not add bulk messaging, anti-detection, or service-bypass behavior.",
+    "Jev judgments are advisory; deterministic checks and explicit user approval control execution."
+  ]
+}

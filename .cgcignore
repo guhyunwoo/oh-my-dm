@@ -1,0 +1,18 @@
+# Dependencies and generated output
+/node_modules/
+/dist/
+/coverage/
+*.log
+*.tgz
+
+# Repository metadata and local agent state
+/.git/
+/.gjc/
+/.omc/
+/.oh-my-chat/
+/.oh-my-dm/
+
+# Local environment and credentials
+.env
+.env.*
+!.env.example

@@ -1,0 +1,6 @@
+[mcp_servers.codegraphcontext]
+command = "cgc"
+args = ["mcp", "start"]
+startup_timeout_sec = 30
+tool_timeout_sec = 120
+default_tools_approval_mode = "writes"

@@ -1,0 +1,84 @@
+{
+  "triage": {
+    "area": {
+      "type": "choice",
+      "instructions": {
+        "question": "Which project area is the primary owner of the requested work in `task`?",
+        "focus": "Choose the narrowest primary area supported by the task and repository structure."
+      },
+      "criteria": {
+        "instagram_connector": "Instagram browser lifecycle, DOM parsing, wake-up, or Instagram tests",
+        "kakao_connector": "KakaoTalk native state, accessibility bridge, Swift scripts, or Kakao tests",
+        "terminal_ui": "Ink rendering, input, layout, theme, commands, localization, or UI tests",
+        "storage_or_config": "Local settings, configuration, update behavior, or version metadata",
+        "developer_tooling": "Build, tests, CI, release, scripts, or contributor workflow",
+        "documentation": "Documentation-only work with no runtime behavior change",
+        "cross_cutting": "The request necessarily spans several of the listed areas"
+      }
+    },
+    "risk": {
+      "type": "score",
+      "instructions": "How risky is the requested work given `constraints`, repository state, and likely affected area?",
+      "criteria": [
+        "Low risk: isolated documentation, tests, or deterministic developer tooling",
+        "Moderate risk: localized runtime behavior with focused automated coverage",
+        "High risk: connectors, privacy boundaries, external UI automation, credentials, or destructive behavior"
+      ]
+    },
+    "scope_is_clear": {
+      "type": "noul",
+      "instructions": "Is the requested outcome in `task` specific enough to begin a bounded implementation without inventing user-facing product behavior? A named developer artifact or workflow counts as clear even when implementation details are left to the engineer.",
+      "criteria": {
+        "true": "The task names a concrete outcome, artifact, bug, or workflow and leaves only ordinary engineering choices open",
+        "false": "The task leaves the intended outcome or product behavior genuinely ambiguous"
+      }
+    },
+    "needs_manual_macos_validation": {
+      "type": "noul",
+      "instructions": "Based on `task` itself and only the work it requests, will implementation likely require manual macOS, KakaoTalk Accessibility, terminal rendering, or live connector validation beyond automated tests? Do not answer yes merely because the repository contains macOS or connector code.",
+      "criteria": {
+        "true": "The requested work directly changes or depends on a live macOS, Accessibility, terminal rendering, or connector interaction",
+        "false": "The requested work is isolated developer tooling, documentation, pure logic, or otherwise covered by automated checks"
+      }
+    },
+    "privacy_boundary_at_risk": {
+      "type": "noul",
+      "instructions": "Based on `task` itself and only the behavior it requests, could implementation change handling of conversation content, cookies, sessions, browser profiles, credentials, or accessibility data? Do not answer yes merely because such data exists elsewhere in the repository.",
+      "criteria": {
+        "true": "The requested behavior reads, writes, transmits, exposes, or changes a boundary around sensitive data",
+        "false": "The work does not alter sensitive-data handling, even if the repository has unrelated sensitive components"
+      }
+    }
+  },
+  "verify": {
+    "next_action": {
+      "type": "choice",
+      "instructions": {
+        "question": "What is the safest next action based only on `task`, `changes`, `verification`, and `constraints`?",
+        "focus": "Treat missing or truncated evidence as a reason for review, not proof of correctness."
+      },
+      "criteria": {
+        "ready": "The supplied evidence supports the requested outcome, deterministic checks pass, and no unresolved boundary issue is visible",
+        "needs_code_changes": "The diff appears incomplete, incorrect, or inconsistent with the requested outcome",
+        "needs_tests": "Behavior changed without sufficient deterministic verification",
+        "needs_manual_review": "The evidence is insufficient, ambiguous, privacy-sensitive, or requires live macOS/connector validation"
+      }
+    },
+    "requirements_covered": {
+      "type": "noul",
+      "instructions": "Does the supplied `changes.diff` appear to cover the explicit outcome in `task` without relying on unstated requirements?"
+    },
+    "privacy_boundary_preserved": {
+      "type": "noul",
+      "instructions": "Do the supplied changes preserve the privacy and data-handling rules in `constraints`?"
+    },
+    "scope_is_focused": {
+      "type": "noul",
+      "instructions": "Are the supplied changes focused on `task` without unrelated behavior or broad refactoring?"
+    },
+    "manual_validation_needed": {
+      "type": "noul",
+      "instructions": "Is manual validation still needed because the work touches terminal rendering, macOS Accessibility, live connectors, or evidence omitted from the supplied state?"
+    }
+  }
+}
