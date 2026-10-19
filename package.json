@@ -52,7 +52,7 @@
     "provenance": true
   },
   "dependencies": {
-    "ink": "^7.1.1",
+    "ink": "^8.0.0",
     "ink-text-input": "^6.0.0",
     "playwright-core": "^1.62.1",
     "react": "^19.2.8",
