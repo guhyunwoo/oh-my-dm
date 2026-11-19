@@ -74,3 +74,32 @@ export function mergeTelegramMessages(previous: ChatMessage[], visible: ChatMess
     return Number(left.id.split(":").at(-1)) - Number(right.id.split(":").at(-1));
   });
 }
+
+export function isTelegramPeerId(value: string | undefined): value is string {
+  // JavaScript's $ also accepts a final newline; reject surrounding whitespace.
+  return value !== undefined && /^-?\d+$/.test(value) && value.trim() === value;
+}
+
+// Runs in Node after page.evaluate: page-controlled text must not reach the
+// terminal with C0/C1 controls. Preserve line breaks only in message bodies.
+export function normalizeTelegramSnapshot(raw: TelegramDomSnapshot): TelegramDomSnapshot {
+  const inline = (value: string): string => value.replace(/[\u0000-\u001f\u007f-\u009f]+/g, " ").trim();
+  const activeConversationId = isTelegramPeerId(raw.activeConversationId)
+    ? raw.activeConversationId : undefined;
+  return {
+    ...raw,
+    activeConversationId,
+    conversations: raw.conversations.map((conversation) => ({
+      ...conversation,
+      title: inline(conversation.title),
+      preview: conversation.preview === undefined ? undefined : inline(conversation.preview),
+    })),
+    messages: activeConversationId ? raw.messages
+      .filter((message) => message.threadId === activeConversationId)
+      .map((message) => ({
+        ...message,
+        text: message.text.replace(/[\u0000-\u0009\u000b-\u001f\u007f-\u009f]/g, ""),
+        sender: inline(message.sender),
+      })) : [],
+  };
+}

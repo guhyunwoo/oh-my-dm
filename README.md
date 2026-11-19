@@ -48,7 +48,7 @@ npm run dev
 
 로그인 창의 Telegram WebK(`https://web.telegram.org/k/`)에서 QR 코드 또는 전화번호로 직접 로그인한 뒤 `Ctrl+C`로 종료하세요. TUI의 `/conversations`에서 `Tab` 또는 방향키로 Telegram 탭을 선택합니다. 설치된 CLI에서는 `oh-my-dm login telegram`과 `oh-my-dm logout telegram`을 사용합니다.
 
-Telegram은 별도 `browser/telegram` 프로필을 사용합니다. 로그인 창을 종료한 뒤 TUI를 실행하세요. 두 프로세스가 같은 프로필을 동시에 열 수는 없습니다. 대화 목록과 텍스트 송수신, 이전 메시지·추가 대화 로딩을 지원하며 화면을 1.5초마다 다시 읽습니다. 미디어는 화면에서 식별 가능한 종류만 텍스트로 표시하며 파일을 다운로드하지 않습니다. WebA(`/a/`), 포럼 토픽, 파일 전송은 지원하지 않습니다. 작성 중인 초안이나 답장·수정 창이 있으면 전송을 중단합니다.
+Telegram은 별도 `browser/telegram` 프로필을 사용합니다. 이 프로필이 있을 때만 TUI가 Telegram 커넥터를 시작하며, 처음에는 Telegram 탭에서 로그인 안내만 표시합니다. 로그인 창을 종료한 뒤 TUI를 실행하세요. 두 프로세스가 같은 프로필을 동시에 열 수는 없습니다. 대화 목록과 텍스트 송수신, 이전 메시지·추가 대화 로딩을 지원하며 화면을 1.5초마다 다시 읽습니다. 미디어는 화면에서 식별 가능한 종류만 텍스트로 표시하며 파일을 다운로드하지 않습니다. WebA(`/a/`), 포럼 토픽, 파일 전송은 지원하지 않습니다. 작성 중인 초안이나 답장·수정 창이 있으면 전송을 중단합니다.
 
 프로필에는 Telegram의 로그인 정보와 웹앱 로컬 데이터가 포함될 수 있으므로 민감하게 취급하세요. 실제 계정의 로그인 및 송수신 확인은 별도로 필요합니다. 자동 테스트는 합성 화면을 사용합니다.
 
@@ -256,7 +256,7 @@ npm run dev
 
 Sign in manually with a QR code or phone number in Telegram WebK (`https://web.telegram.org/k/`), then press `Ctrl+C` to close the login process. Open `/conversations` and select Telegram with `Tab` or the arrow keys. With an installed CLI, use `oh-my-dm login telegram` and `oh-my-dm logout telegram`.
 
-Telegram uses a separate `browser/telegram` profile. Close the login process before starting the TUI; two processes cannot open the same profile simultaneously. The connector supports conversation discovery, text messaging, older messages, and additional conversation loading, reading the DOM every 1.5 seconds. Recognizable media types appear as text markers without downloading files. WebA (`/a/`), forum topics, and file uploads are unsupported. An existing draft or reply/edit context blocks sending.
+Telegram uses a separate `browser/telegram` profile. The TUI starts the Telegram connector only when that profile exists; otherwise the Telegram tab shows login instructions. Close the login process before starting the TUI; two processes cannot open the same profile simultaneously. The connector supports conversation discovery, text messaging, older messages, and additional conversation loading, reading the DOM every 1.5 seconds. Recognizable media types appear as text markers without downloading files. WebA (`/a/`), forum topics, and file uploads are unsupported. An existing draft or reply/edit context blocks sending.
 
 Treat the profile as sensitive: it can contain Telegram authentication and web-app local data. Login and messaging with a real account still require manual validation. Automated tests use synthetic pages.
 

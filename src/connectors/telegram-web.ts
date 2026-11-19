@@ -5,7 +5,7 @@ import { chromium, type BrowserContext, type Page } from "playwright-core";
 import { resolveBrowserExecutable } from "../browser/resolve-browser.js";
 import type { ChatConnector, ChatSnapshot } from "../domain.js";
 import { getCopy, resolveLanguage, type LanguagePreference } from "../ui/i18n.js";
-import { mergeTelegramMessages, readTelegramDom } from "./telegram-dom.js";
+import { isTelegramPeerId, mergeTelegramMessages, normalizeTelegramSnapshot, readTelegramDom } from "./telegram-dom.js";
 
 export const TELEGRAM_WEB_URL = "https://web.telegram.org/k/";
 export const TELEGRAM_CHAT_SELECTOR = "#column-center .chat:visible";
@@ -107,7 +107,7 @@ export class TelegramWebConnector extends EventEmitter implements ChatConnector 
   public openConversation(id: string): Promise<void> {
     return this.queueOperation(async () => {
       const page = this.requirePage();
-      if (!/^-?\d+$/.test(id) || !this.snapshot.conversations.some((item) => item.id === id)) {
+      if (!isTelegramPeerId(id) || !this.snapshot.conversations.some((item) => item.id === id)) {
         throw new Error(this.copy.telegramConversationNotFound(id));
       }
       const row = page.locator(`#chatlist-container .chatlist-chat[data-peer-id="${id}"]:not([data-thread-id]):visible`).first();
@@ -143,7 +143,7 @@ export class TelegramWebConnector extends EventEmitter implements ChatConnector 
       if (!message) return;
       const page = this.requirePage();
       const expected = this.snapshot.activeConversationId;
-      if (!expected || this.snapshot.state !== "connected") throw new Error(this.copy.telegramChooseConversation);
+      if (!isTelegramPeerId(expected) || this.snapshot.state !== "connected") throw new Error(this.copy.telegramChooseConversation);
       const current = await page.evaluate(readTelegramDom);
       if (!current.authenticated || current.activeConversationId !== expected) {
         throw new Error(this.copy.telegramConversationChanged);
@@ -209,7 +209,7 @@ export class TelegramWebConnector extends EventEmitter implements ChatConnector 
   }
 
   private async readSnapshot(): Promise<void> {
-    const raw = await this.requirePage().evaluate(readTelegramDom);
+    const raw = normalizeTelegramSnapshot(await this.requirePage().evaluate(readTelegramDom));
     if (!raw.authenticated) {
       this.historyMode = false;
       const login = await this.requirePage().locator("#auth-pages:visible, #page-auth:visible").count();
@@ -249,4 +249,16 @@ export class TelegramWebConnector extends EventEmitter implements ChatConnector 
     this.snapshot = snapshot;
     this.emit("snapshot", snapshot);
   }
+}
+
+// Only the explicit login flow may create a new Telegram profile. Chat startup
+// must not launch a browser or contact Telegram for users who never opted in.
+export async function createConfiguredTelegramConnector(
+  options: TelegramWebOptions,
+): Promise<TelegramWebConnector | undefined> {
+  const profile = await fs.stat(options.profileDir).catch((error: NodeJS.ErrnoException) => {
+    if (error.code === "ENOENT") return undefined;
+    throw error;
+  });
+  return profile?.isDirectory() ? new TelegramWebConnector(options) : undefined;
 }

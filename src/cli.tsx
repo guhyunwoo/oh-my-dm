@@ -8,7 +8,7 @@ import { resolveBrowserExecutable } from "./browser/resolve-browser.js";
 import { getAppPaths } from "./config.js";
 import { InstagramWebConnector } from "./connectors/instagram-web.js";
 import { KakaoNativeConnector } from "./connectors/kakao-native.js";
-import { TelegramWebConnector } from "./connectors/telegram-web.js";
+import { createConfiguredTelegramConnector, TelegramWebConnector } from "./connectors/telegram-web.js";
 import { UnifiedChatConnector } from "./connectors/unified.js";
 import { SettingsStore } from "./storage/settings-store.js";
 import { App } from "./ui/app.js";
@@ -80,12 +80,15 @@ if ((command === "login" || command === "logout") && provider !== "instagram" &&
     headless: !process.argv.includes("--headed"),
     cloneProfileWhenLocked: true,
   });
+  const telegram = await createConfiguredTelegramConnector({
+    profileDir: paths.telegramProfileDir,
+    headless: !process.argv.includes("--headed"),
+    language: cliLanguage,
+  });
   const connector = new UnifiedChatConnector([
     { id: "instagram", label: "Instagram", connector: instagram },
     { id: "kakaotalk", label: "KakaoTalk", connector: new KakaoNativeConnector() },
-    { id: "telegram", label: "Telegram", connector: new TelegramWebConnector({
-      profileDir: paths.telegramProfileDir, headless: !process.argv.includes("--headed"), language: cliLanguage,
-    }) },
+    ...(telegram ? [{ id: "telegram", label: "Telegram", connector: telegram }] : []),
   ]);
   const app = render(
     <App

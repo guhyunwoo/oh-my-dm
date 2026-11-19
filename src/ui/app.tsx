@@ -1144,7 +1144,7 @@ export function App({
               <Text color={theme.muted}>
                 {conversationProvider === "instagram" && conversationConnector?.state === "login-required"
                   ? copy.instagramLoginRequired
-                  : conversationProvider === "telegram" && conversationConnector?.state === "login-required"
+                  : conversationProvider === "telegram" && (!conversationConnector || conversationConnector.state === "login-required")
                     ? copy.telegramLoginRequired
                   : connectorFailure
                     ? `error: ${connectorFailure}`

@@ -5,7 +5,7 @@ import path from "node:path";
 import test, { type TestContext } from "node:test";
 import { chromium } from "playwright-core";
 
-import { TelegramWebConnector, TELEGRAM_WEB_URL } from "../src/connectors/telegram-web.js";
+import { createConfiguredTelegramConnector, TelegramWebConnector, TELEGRAM_WEB_URL } from "../src/connectors/telegram-web.js";
 import { readTelegramDom, mergeTelegramMessages } from "../src/connectors/telegram-dom.js";
 
 const fixture = `
@@ -203,4 +203,63 @@ test("Telegram status and draft errors honor the selected English language", asy
   await page.locator(".input-message-input").fill("synthetic draft");
   await assert.rejects(connector.sendMessage("test"), /existing Telegram Web draft/);
   assert.deepEqual(await page.evaluate("window.sent"), []);
+});
+
+
+test("Telegram removes terminal controls before publishing page-controlled text", async (t) => {
+  const { connector, page } = await setup(t);
+  await page.evaluate(() => {
+    document.querySelector('.chatlist-chat .user-title .peer-title')!.textContent = "Alice\n\t\r\b\x7f\x85\x9bTeam";
+    document.querySelector('.dialog-subtitle')!.textContent = "hello\r\b\x85world\nnext";
+    document.querySelector('.bubble .message')!.textContent = "hello\x1b[8mhidden\x1b[0m\nnext\rline\b!\x85\x9b";
+    const name = document.createElement("div");
+    name.className = "name";
+    const sender = document.createElement("span");
+    sender.className = "peer-title";
+    sender.textContent = "Bob\n\x9bTeam";
+    name.append(sender);
+    document.querySelector('.bubble')!.prepend(name);
+  });
+  await connector.refresh();
+  const snapshot = connector.getSnapshot();
+  assert.equal(snapshot.conversations[0]?.title, "Alice Team");
+  assert.equal(snapshot.conversations[0]?.preview, "hello world next");
+  assert.equal(snapshot.messages[0]?.sender, "Bob Team");
+  assert.equal(snapshot.messages[0]?.text, "hello[8mhidden[0m\nnextline!");
+  for (const conversation of snapshot.conversations) {
+    assert.doesNotMatch(conversation.title + conversation.preview, /[\u0000-\u001f\u007f-\u009f]/);
+  }
+  assert.doesNotMatch(snapshot.messages[0]!.text, /[\u0000-\u0009\u000b-\u001f\u007f-\u009f]/);
+});
+
+test("Telegram discards invalid active peer IDs before snapshots and selector construction", async (t) => {
+  const { connector, page } = await setup(t);
+  for (const peerId of ['11"] .btn-send', "@alice", "NaN", "11\n", "1.5"]) {
+    await page.locator('.input-message-input').evaluate((node, id) => { (node as HTMLElement).dataset.peerId = id; }, peerId);
+    await connector.refresh();
+    assert.equal(connector.getSnapshot().activeConversationId, undefined);
+    assert.deepEqual(connector.getSnapshot().messages, []);
+    await assert.rejects(connector.sendMessage("must not send"), /대화를 선택/);
+  }
+  assert.deepEqual(await page.evaluate("window.sent"), []);
+});
+
+test("Telegram chat registration requires an existing profile and never creates one", async (t) => {
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), "oh-my-dm-telegram-opt-in-"));
+  t.after(() => fs.rm(root, { recursive: true, force: true }));
+  const profileDir = path.join(root, "telegram");
+  const launches = t.mock.method(chromium, "launchPersistentContext", async () => {
+    throw new Error("Registration must not launch Chromium");
+  });
+  assert.equal(await createConfiguredTelegramConnector({ profileDir }), undefined);
+  await assert.rejects(fs.stat(profileDir), { code: "ENOENT" });
+  await fs.writeFile(profileDir, "not a directory");
+  assert.equal(await createConfiguredTelegramConnector({ profileDir }), undefined);
+  await fs.unlink(profileDir);
+  await fs.mkdir(profileDir);
+  const connector = await createConfiguredTelegramConnector({ profileDir });
+  assert.ok(connector instanceof TelegramWebConnector);
+  assert.equal(launches.mock.callCount(), 0);
+  await fs.rm(profileDir, { recursive: true }); // logout removes opt-in on next startup
+  assert.equal(await createConfiguredTelegramConnector({ profileDir }), undefined);
 });
