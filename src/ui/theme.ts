@@ -18,6 +18,7 @@ export interface UiTheme {
 export const CONNECTOR_COLORS = {
   instagram: "#E1306C",
   kakaotalk: "#FEE500",
+  telegram: "#2AABEE",
 } as const;
 
 export const UI_THEMES: UiTheme[] = [

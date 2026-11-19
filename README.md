@@ -8,7 +8,7 @@
 
 **DM 하는 것처럼 보이지 않게 DM하세요.**
 
-oh-my-dm은 Agent CLI처럼 보이도록 만든 눈치 덜 보이는 TUI 메신저입니다. Instagram과 카카오톡을 Codex CLI, Claude Code, OpenCode 같은 도구에서 영감을 받은 인터페이스로 표시해, 주변 사람이 화면을 얼핏 봤을 때 열린 채팅 앱보다 코딩 에이전트 작업처럼 보이게 합니다.
+oh-my-dm은 Agent CLI처럼 보이도록 만든 눈치 덜 보이는 TUI 메신저입니다. Instagram, Telegram과 카카오톡을 Codex CLI, Claude Code, OpenCode 같은 도구에서 영감을 받은 인터페이스로 표시해, 주변 사람이 화면을 얼핏 봤을 때 열린 채팅 앱보다 코딩 에이전트 작업처럼 보이게 합니다.
 
 핵심 목적은 회사, 교실 또는 사람이 함께 있는 공간에서 익숙한 메신저 창으로 시선을 끌지 않고 조금 더 사적으로 DM을 확인하고 보내는 것입니다. 터미널 작업 흐름을 유지하는 것은 추가 장점입니다. 별도 애플리케이션 백엔드나 메시지 저장소는 없으며, 로컬 connector가 원본 서비스의 데이터를 읽어 하나의 Agent 스타일 workspace에 표시합니다.
 
@@ -37,6 +37,20 @@ npx oh-my-dm@latest
 | 이전 메시지 보기 | 빈 입력창에서 `↑` 또는 `PageUp` |
 | 명령 목록 열기 | `/` |
 | 종료 | `Esc`, `/exit` 또는 `Ctrl+C` |
+
+### Telegram Web 연결
+
+```bash
+# 이 저장소에서 실행할 때
+npm run dev -- login telegram
+npm run dev
+```
+
+로그인 창의 Telegram WebK(`https://web.telegram.org/k/`)에서 QR 코드 또는 전화번호로 직접 로그인한 뒤 `Ctrl+C`로 종료하세요. TUI의 `/conversations`에서 `Tab` 또는 방향키로 Telegram 탭을 선택합니다. 설치된 CLI에서는 `oh-my-dm login telegram`과 `oh-my-dm logout telegram`을 사용합니다.
+
+Telegram은 별도 `browser/telegram` 프로필을 사용합니다. 로그인 창을 종료한 뒤 TUI를 실행하세요. 두 프로세스가 같은 프로필을 동시에 열 수는 없습니다. 대화 목록과 텍스트 송수신, 이전 메시지·추가 대화 로딩을 지원하며 화면을 1.5초마다 다시 읽습니다. 미디어는 화면에서 식별 가능한 종류만 텍스트로 표시하며 파일을 다운로드하지 않습니다. WebA(`/a/`), 포럼 토픽, 파일 전송은 지원하지 않습니다. 작성 중인 초안이나 답장·수정 창이 있으면 전송을 중단합니다.
+
+프로필에는 Telegram의 로그인 정보와 웹앱 로컬 데이터가 포함될 수 있으므로 민감하게 취급하세요. 실제 계정의 로그인 및 송수신 확인은 별도로 필요합니다. 자동 테스트는 합성 화면을 사용합니다.
 
 ### 왜 oh-my-dm인가요?
 
@@ -202,7 +216,7 @@ Pull request를 열기 전에 [CONTRIBUTING.md](CONTRIBUTING.md)를 읽어주세
 
 **DM without looking like you're DMing.**
 
-oh-my-dm is a discreet TUI messenger styled to look like an Agent CLI. It brings Instagram and KakaoTalk into an interface inspired by tools such as Codex CLI, Claude Code, and OpenCode, making casual screen glances look more like coding-agent work than an open chat app.
+oh-my-dm is a discreet TUI messenger styled to look like an Agent CLI. It brings Instagram, Telegram, and KakaoTalk into an interface inspired by tools such as Codex CLI, Claude Code, and OpenCode, making casual screen glances look more like coding-agent work than an open chat app.
 
 The main goal is simple: let you check and send DMs more privately in shared offices, classrooms, or other places where a familiar messenger window would immediately draw attention. Staying inside your terminal workflow is an additional benefit. There is no application backend or message archive; local connectors read from the original services and present everything through one agent-style workspace.
 
@@ -231,6 +245,20 @@ After signing in, press `Ctrl+C` to close the login window. KakaoTalk connects t
 | View older messages | `↑` or `PageUp` with an empty composer |
 | Open command palette | `/` |
 | Exit | `Esc`, `/exit`, or `Ctrl+C` |
+
+### Connect Telegram Web
+
+```bash
+# When running from this repository
+npm run dev -- login telegram
+npm run dev
+```
+
+Sign in manually with a QR code or phone number in Telegram WebK (`https://web.telegram.org/k/`), then press `Ctrl+C` to close the login process. Open `/conversations` and select Telegram with `Tab` or the arrow keys. With an installed CLI, use `oh-my-dm login telegram` and `oh-my-dm logout telegram`.
+
+Telegram uses a separate `browser/telegram` profile. Close the login process before starting the TUI; two processes cannot open the same profile simultaneously. The connector supports conversation discovery, text messaging, older messages, and additional conversation loading, reading the DOM every 1.5 seconds. Recognizable media types appear as text markers without downloading files. WebA (`/a/`), forum topics, and file uploads are unsupported. An existing draft or reply/edit context blocks sending.
+
+Treat the profile as sensitive: it can contain Telegram authentication and web-app local data. Login and messaging with a real account still require manual validation. Automated tests use synthetic pages.
 
 ### Why oh-my-dm?
 

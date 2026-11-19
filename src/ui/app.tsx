@@ -65,7 +65,12 @@ interface AppProps {
 }
 
 type ConversationFilter = "all" | "unread";
-type ConversationProvider = "instagram" | "kakaotalk";
+const CONVERSATION_PROVIDERS = [
+  { id: "instagram", label: "Instagram", mark: "I" },
+  { id: "kakaotalk", label: "KakaoTalk", mark: "K" },
+  { id: "telegram", label: "Telegram", mark: "T" },
+] as const;
+type ConversationProvider = typeof CONVERSATION_PROVIDERS[number]["id"];
 type ViewMode = "chat" | "history" | "conversations" | "connectors" | "model" | "effort" | "theme" | "language";
 type TranscriptItem =
   | { id: string; kind: "signature"; full: boolean }
@@ -174,7 +179,7 @@ export function App({
   );
   const visibleMessageCount = Math.max(1, mainHeight - 4);
   const messageContentWidth = Math.max(1, terminalSize.columns - 2);
-  const conversationLayout = getConversationLayout(terminalSize.columns);
+  const conversationLayout = getConversationLayout(terminalSize.columns, CONVERSATION_PROVIDERS.map((item) => item.label));
   const conversationContentWidth = conversationLayout.contentWidth;
   const transcriptRows = useMemo(
     () =>
@@ -663,9 +668,11 @@ export function App({
       viewMode === "conversations" &&
       (key.tab || key.leftArrow || key.rightArrow)
     ) {
-      setConversationProvider((provider) =>
-        provider === "instagram" ? "kakaotalk" : "instagram",
-      );
+      setConversationProvider((provider) => {
+        const direction = key.leftArrow || key.shift ? -1 : 1;
+        const index = CONVERSATION_PROVIDERS.findIndex((item) => item.id === provider);
+        return CONVERSATION_PROVIDERS[(index + direction + CONVERSATION_PROVIDERS.length) % CONVERSATION_PROVIDERS.length]!.id;
+      });
       setSelectedIndex(0);
       return;
     }
@@ -1119,35 +1126,26 @@ export function App({
                 </Box>
               )}
               <Box width={conversationTabsWidth} flexShrink={0} justifyContent="flex-end">
-                <Text
-                  bold={conversationProvider === "instagram"}
-                  color={conversationProvider === "instagram" ? "#000000" : theme.muted}
-                  backgroundColor={
-                    conversationProvider === "instagram"
-                      ? CONNECTOR_COLORS.instagram
-                      : undefined
-                  }
-                >
-                  {useCompactConversationTabs ? " I " : " Instagram "}
-                </Text>
-                <Text color={theme.muted}> │ </Text>
-                <Text
-                  bold={conversationProvider === "kakaotalk"}
-                  color={conversationProvider === "kakaotalk" ? "#000000" : theme.muted}
-                  backgroundColor={
-                    conversationProvider === "kakaotalk"
-                      ? CONNECTOR_COLORS.kakaotalk
-                      : undefined
-                  }
-                >
-                  {useCompactConversationTabs ? " K " : " KakaoTalk "}
-                </Text>
+                {CONVERSATION_PROVIDERS.map((provider, index) => (
+                  <Box key={provider.id}>
+                    {index > 0 && <Text color={theme.muted}> │ </Text>}
+                    <Text
+                      bold={conversationProvider === provider.id}
+                      color={conversationProvider === provider.id ? "#000000" : theme.muted}
+                      backgroundColor={conversationProvider === provider.id ? CONNECTOR_COLORS[provider.id] : undefined}
+                    >
+                      {` ${useCompactConversationTabs ? provider.mark : provider.label} `}
+                    </Text>
+                  </Box>
+                ))}
               </Box>
             </Box>
             {conversations.length === 0 ? (
               <Text color={theme.muted}>
                 {conversationProvider === "instagram" && conversationConnector?.state === "login-required"
                   ? copy.instagramLoginRequired
+                  : conversationProvider === "telegram" && conversationConnector?.state === "login-required"
+                    ? copy.telegramLoginRequired
                   : connectorFailure
                     ? `error: ${connectorFailure}`
                   : conversationFilter === "unread"
@@ -1160,11 +1158,9 @@ export function App({
                 const selected = absoluteIndex === selectedIndex;
                 const selectionMark = selected ? "> " : "  ";
                 const unreadMark = conversation.unread ? " ●" : "  ";
-                const isKakaoTalk = conversation.provider === "kakaotalk";
-                const providerMark = isKakaoTalk ? "K" : "I";
-                const providerColor = isKakaoTalk
-                  ? CONNECTOR_COLORS.kakaotalk
-                  : CONNECTOR_COLORS.instagram;
+                const provider = CONVERSATION_PROVIDERS.find((item) => item.id === conversation.provider) ?? CONVERSATION_PROVIDERS[0];
+                const providerMark = provider.mark;
+                const providerColor = CONNECTOR_COLORS[provider.id];
                 const titleCellWidth = Math.max(1, conversationTitleWidth - 1);
                 const title = truncateToWidth(
                   conversation.title,
@@ -1225,7 +1221,7 @@ export function App({
                   </Text>
                   <Box marginLeft={3} flexDirection="column">
                     <Text color={theme.muted}>
-                      source      {connectorStatus.id === "instagram" ? "instagram.com/direct · live DOM + WebSocket" : "KakaoTalk for macOS · persistent native bridge"}
+                      source      {connectorStatus.id === "instagram" ? "instagram.com/direct · live DOM + WebSocket" : connectorStatus.id === "telegram" ? "web.telegram.org/k · live DOM" : "KakaoTalk for macOS · persistent native bridge"}
                     </Text>
                     <Text color={theme.muted}>storage     {copy.storage}</Text>
                     {connectorStatus.detail && <Text color={theme.muted}>detail      {connectorStatus.detail}</Text>}

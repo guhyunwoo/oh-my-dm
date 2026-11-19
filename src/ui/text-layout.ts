@@ -35,11 +35,16 @@ export interface ConversationLayout {
   previewWidth: number;
 }
 
-export function getConversationLayout(terminalColumns: number): ConversationLayout {
+export function getConversationLayout(
+  terminalColumns: number,
+  providerLabels: readonly string[] = ["Instagram", "KakaoTalk"],
+): ConversationLayout {
   const contentWidth = Math.max(1, terminalColumns - 6);
   const showPreview = terminalColumns >= 70;
-  const compactTabs = terminalColumns < 32;
-  const tabsWidth = Math.min(contentWidth, compactTabs ? 9 : 25);
+  const regularTabsWidth = providerLabels.reduce((width, label) => width + stringWidth(label) + 2, 0)
+    + Math.max(0, providerLabels.length - 1) * 3;
+  const compactTabs = contentWidth < regularTabsWidth + 1;
+  const tabsWidth = Math.min(contentWidth, compactTabs ? providerLabels.length * 3 + Math.max(0, providerLabels.length - 1) * 3 : regularTabsWidth);
   const pathWidth = Math.max(0, contentWidth - tabsWidth);
   const titleWidth = showPreview
     ? Math.max(8, Math.min(32, Math.floor(contentWidth * 0.38)))

@@ -5,6 +5,7 @@ import path from "node:path";
 export interface AppPaths {
   dataDir: string;
   browserProfileDir: string;
+  telegramProfileDir: string;
   settingsFile: string;
 }
 
@@ -21,6 +22,7 @@ export function getAppPaths(env: NodeJS.ProcessEnv = process.env): AppPaths {
   return {
     dataDir,
     browserProfileDir: path.join(dataDir, "browser", "instagram"),
+    telegramProfileDir: path.join(dataDir, "browser", "telegram"),
     settingsFile: path.join(dataDir, "settings.json"),
   };
 }
