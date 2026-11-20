@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and releases follow [Semantic Versioning](https://semver.org/).
 
+## [0.8.1](https://github.com/guhyunwoo/oh-my-dm/compare/v0.8.0...v0.8.1) (2026-11-20)
+
+
+### Bug Fixes
+
+* **release:** point package metadata at guhyunwoo/oh-my-dm ([#39](https://github.com/guhyunwoo/oh-my-dm/issues/39)) ([afbc158](https://github.com/guhyunwoo/oh-my-dm/commit/afbc158260f7621ccbc84711c3255807c3267f85))
+
 ## [0.8.0](https://github.com/guhyunwoo/oh-my-dm/compare/v0.7.2...v0.8.0) (2026-11-20)
 
 
