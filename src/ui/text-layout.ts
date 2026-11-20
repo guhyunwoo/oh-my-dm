@@ -58,3 +58,43 @@ export function getConversationLayout(terminalColumns: number): ConversationLayo
     previewWidth,
   };
 }
+
+export interface ConnectorPanelPlan {
+  // Connectors that get a status line, in order.
+  visible: number;
+  detail: boolean;
+  help: boolean;
+  source: boolean;
+  storage: boolean;
+  spacers: boolean;
+}
+
+// The /connectors panel has a fixed height. When its lines do not fit, Yoga
+// collapses rows to height 0 and Ink draws them on top of each other, so plan
+// exactly the lines that fit: status lines first, then the most useful extras.
+export function planConnectorPanel(connectorCount: number, rows: number): ConnectorPanelPlan {
+  const budget = Math.max(1, rows);
+  const visible = Math.max(0, Math.min(connectorCount, budget - 1));
+  const plan: ConnectorPanelPlan = {
+    visible,
+    detail: false,
+    help: false,
+    source: false,
+    storage: false,
+    spacers: false,
+  };
+  let used = 1 + visible;
+  const extras: Array<[keyof Omit<ConnectorPanelPlan, "visible">, number]> = [
+    ["detail", visible],
+    ["help", 1],
+    ["source", visible],
+    ["storage", 1],
+    ["spacers", visible],
+  ];
+  for (const [key, cost] of extras) {
+    if (visible < connectorCount || used + cost > budget) continue;
+    plan[key] = true;
+    used += cost;
+  }
+  return plan;
+}

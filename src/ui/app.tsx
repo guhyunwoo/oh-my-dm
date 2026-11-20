@@ -37,6 +37,7 @@ import {
 import {
   getConversationLayout,
   padToWidth,
+  planConnectorPanel,
   shouldShowComposerHints,
   truncateToWidth,
 } from "./text-layout.js";
@@ -269,6 +270,11 @@ export function App({
   const conversationTitleWidth = conversationLayout.titleWidth;
   const conversationPreviewWidth = conversationLayout.previewWidth;
   const conversationPathLabel = `~/conversations · ${conversationFilter}`;
+  const connectorStatuses = snapshot.connectors ?? [
+    { id: "instagram", label: "Instagram", state: snapshot.state, detail: snapshot.detail },
+  ];
+  // Two border rows; every planned line must fit or Yoga overlaps them.
+  const connectorPanel = planConnectorPanel(connectorStatuses.length, mainHeight - 2);
   const conversationConnector = snapshot.connectors?.find(
     (item) => item.id === conversationProvider,
   );
@@ -1207,35 +1213,38 @@ export function App({
           </Box>
         ) : viewMode === "connectors" ? (
           <Box flexGrow={1} flexDirection="column" borderStyle="single" paddingX={2}>
-            <Text bold>{copy.manageConnectors}</Text>
-            <Text color={theme.muted}>{snapshot.connectors?.length ?? 1} connectors</Text>
-            <Box marginTop={1} flexDirection="column">
-              <Text color={theme.muted}>{copy.chatConnectors}</Text>
-              {(snapshot.connectors ?? [
-                { id: "instagram", label: "Instagram", state: snapshot.state, detail: snapshot.detail },
-              ]).map((connectorStatus, index) => (
-                <Box key={connectorStatus.id} flexDirection="column" marginTop={index === 0 ? 0 : 1}>
-                  <Text>
-                    <Text color={theme.accent}>❯ </Text>
-                    <Text bold>{connectorStatus.id}</Text>
-                    <Text> · </Text>
-                    <Text color={serviceStateColor(connectorStatus.state, theme)}>
-                      {serviceStateIcon(connectorStatus.state)} {connectorStatus.state}
-                    </Text>
+            <Text bold wrap="truncate-end">
+              {copy.manageConnectors} <Text color={theme.muted}>· {connectorStatuses.length} connectors</Text>
+            </Text>
+            {connectorPanel.storage && (
+              <Text color={theme.muted} wrap="truncate-end">storage     {copy.storage}</Text>
+            )}
+            {connectorStatuses.slice(0, connectorPanel.visible).map((connectorStatus) => (
+              <Box key={connectorStatus.id} flexDirection="column" flexShrink={0}>
+                {connectorPanel.spacers && <Text> </Text>}
+                <Text wrap="truncate-end">
+                  <Text color={theme.accent}>❯ </Text>
+                  <Text bold>{connectorStatus.id}</Text>
+                  <Text> · </Text>
+                  <Text color={serviceStateColor(connectorStatus.state, theme)}>
+                    {serviceStateIcon(connectorStatus.state)} {connectorStatus.state}
                   </Text>
-                  <Box marginLeft={3} flexDirection="column">
-                    <Text color={theme.muted}>
-                      source      {connectorStatus.id === "instagram" ? "instagram.com/direct · live DOM + WebSocket" : "KakaoTalk for macOS · persistent native bridge"}
-                    </Text>
-                    <Text color={theme.muted}>storage     {copy.storage}</Text>
-                    {connectorStatus.detail && <Text color={theme.muted}>detail      {connectorStatus.detail}</Text>}
-                  </Box>
-                </Box>
-              ))}
-            </Box>
-            <Box marginTop={1}>
-              <Text color={theme.muted}>{copy.refreshConnectorsHelp}</Text>
-            </Box>
+                </Text>
+                {connectorPanel.source && (
+                  <Text color={theme.muted} wrap="truncate-end">
+                    {"   "}source      {connectorStatus.id === "instagram" ? "instagram.com/direct · live DOM + WebSocket" : "KakaoTalk for macOS · persistent native bridge"}
+                  </Text>
+                )}
+                {connectorPanel.detail && (
+                  <Text color={theme.muted} wrap="truncate-end">
+                    {"   "}detail      {connectorStatus.detail?.replaceAll("\n", " ") ?? "-"}
+                  </Text>
+                )}
+              </Box>
+            ))}
+            {connectorPanel.help && (
+              <Text color={theme.muted} wrap="truncate-end">{copy.refreshConnectorsHelp}</Text>
+            )}
           </Box>
         ) : viewMode === "model" ? (
           <Box flexGrow={1} flexDirection="column" borderStyle="single" paddingX={2}>
