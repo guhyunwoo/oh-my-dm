@@ -5,6 +5,7 @@ import stringWidth from "string-width";
 import {
   getConversationLayout,
   padToWidth,
+  planConnectorPanel,
   shouldShowComposerHints,
   truncateToWidth,
 } from "../src/ui/text-layout.js";
@@ -54,5 +55,20 @@ test("three connector tabs fit narrow and wide terminal headers", () => {
     const renderedWidth = layout.compactTabs ? 15 : 38;
     assert.equal(layout.tabsWidth, renderedWidth);
     assert.ok(layout.pathWidth + renderedWidth <= layout.contentWidth);
+  }
+});
+
+test("connector panel plans only the lines that fit its height", () => {
+  const full = planConnectorPanel(3, 20);
+  assert.deepEqual(full, { visible: 3, detail: true, help: true, source: true, storage: true, spacers: true });
+  // 1 title + 3 status + 3 detail + 1 help = 8 rows
+  assert.deepEqual(planConnectorPanel(3, 8), { visible: 3, detail: true, help: true, source: false, storage: false, spacers: false });
+  assert.deepEqual(planConnectorPanel(3, 5), { visible: 3, detail: false, help: true, source: false, storage: false, spacers: false });
+  assert.equal(planConnectorPanel(3, 3).visible, 2);
+  for (let rows = 1; rows <= 20; rows += 1) {
+    const plan = planConnectorPanel(3, rows);
+    const used = 1 + plan.visible * (1 + Number(plan.detail) + Number(plan.source) + Number(plan.spacers))
+      + Number(plan.help) + Number(plan.storage);
+    assert.ok(used <= Math.max(1, rows), `${rows} rows: ${used}`);
   }
 });
