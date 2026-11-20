@@ -4,6 +4,18 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and releases follow [Semantic Versioning](https://semver.org/).
 
+## [0.8.0](https://github.com/guhyunwoo/oh-my-dm/compare/v0.7.2...v0.8.0) (2026-11-20)
+
+
+### Features
+
+* **telegram:** add Telegram Web connector ([#34](https://github.com/guhyunwoo/oh-my-dm/issues/34)) ([5de21fc](https://github.com/guhyunwoo/oh-my-dm/commit/5de21fc4af67adbc43ba72b76cfb40037b3b7111))
+
+
+### Bug Fixes
+
+* **ui:** fit the /connectors panel to its height ([#37](https://github.com/guhyunwoo/oh-my-dm/issues/37)) ([6c394ac](https://github.com/guhyunwoo/oh-my-dm/commit/6c394ac21c187aaadac0b129995b1e4c71013a6a))
+
 ## [0.7.2](https://github.com/stacking-money-forever/oh-my-dm/compare/v0.7.1...v0.7.2) (2026-09-10)
 
 
