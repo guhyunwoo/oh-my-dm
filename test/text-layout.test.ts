@@ -46,3 +46,13 @@ test("메시지를 입력하기 시작하면 composer 단축키 안내를 숨긴
   assert.equal(shouldShowComposerHints(80, "메시지 입력 중"), false);
   assert.equal(shouldShowComposerHints(71, ""), false);
 });
+
+test("three connector tabs fit narrow and wide terminal headers", () => {
+  const labels = ["Instagram", "KakaoTalk", "Telegram"];
+  for (const columns of [24, 28, 32, 40, 50, 80]) {
+    const layout = getConversationLayout(columns, labels);
+    const renderedWidth = layout.compactTabs ? 15 : 38;
+    assert.equal(layout.tabsWidth, renderedWidth);
+    assert.ok(layout.pathWidth + renderedWidth <= layout.contentWidth);
+  }
+});

@@ -106,3 +106,25 @@ test("연결된 connector가 없으면 error를 starting보다 우선해 표시�
   assert.equal(connector.getSnapshot().state, "error");
   assert.equal(connector.getSnapshot().connectors?.find((item) => item.id === "kakaotalk")?.state, "error");
 });
+
+test("Telegram stays isolated when another provider requires login", async () => {
+  const instagram = new FakeConnector({ state: "login-required", conversations: [], messages: [] });
+  const telegram = new FakeConnector({
+    state: "connected", conversations: [{ id: "11", href: "#11", title: "Telegram", unread: true }],
+    messages: [{ id: "telegram:11:1", threadId: "11", kind: "text", text: "hello", sender: "Alice" }],
+  });
+  const connector = new UnifiedChatConnector([
+    { id: "instagram", label: "Instagram", connector: instagram },
+    { id: "telegram", label: "Telegram", connector: telegram },
+  ]);
+  await connector.start();
+  assert.equal(connector.getSnapshot().state, "connected");
+  await connector.openConversation("telegram:11");
+  await connector.sendMessage("Telegram only");
+  assert.equal(connector.getSnapshot().activeConversationId, "telegram:11");
+  assert.equal(connector.getSnapshot().messages[0]?.text, "hello");
+  assert.deepEqual(telegram.sent, ["Telegram only"]);
+  assert.deepEqual(instagram.sent, []);
+  assert.equal(await connector.loadMoreConversations("telegram"), 4);
+  assert.equal(telegram.conversationLoads, 1);
+});
