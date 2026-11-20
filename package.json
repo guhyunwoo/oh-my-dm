@@ -4,13 +4,13 @@
   "description": "DM without looking like you're DMing — a discreet Agent CLI-style TUI messenger.",
   "license": "Apache-2.0",
   "author": "Hyunwoo Gu <162293672+guhyunwoo@users.noreply.github.com>",
-  "homepage": "https://github.com/stacking-money-forever/oh-my-dm#readme",
+  "homepage": "https://github.com/guhyunwoo/oh-my-dm#readme",
   "bugs": {
-    "url": "https://github.com/stacking-money-forever/oh-my-dm/issues"
+    "url": "https://github.com/guhyunwoo/oh-my-dm/issues"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/stacking-money-forever/oh-my-dm.git"
+    "url": "git+https://github.com/guhyunwoo/oh-my-dm.git"
   },
   "keywords": [
     "cli",
